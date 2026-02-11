@@ -22,8 +22,8 @@ class TestIdBlock(unittest.TestCase):
             bytes(16),
             bytes(16),
             0,
-            "tests/keyfile/id_key_test.pem",
-            "tests/keyfile/author_key_test.pem"
+            id_block.FileSigner("tests/keyfile/id_key_test.pem"),
+            id_block.FileSigner("tests/keyfile/author_key_test.pem")
         )
         self.assertEqual(
             base64.b64decode('B28FLQi9p6cAqipgjFyqawDrrSl7bWioWkWx5mmlWLZ+G5HShKMB/mPE+gdQRn7t'

@@ -19,19 +19,22 @@ class TestIdBlock(unittest.TestCase):
         ld = base64.b64decode("B28FLQi9p6cAqipgjFyqawDrrSl7bWioWkWx5mmlWLZ+G5HShKMB/mPE+gdQRn7t")
         block = id_block.snp_calc_id_block(
             ld,
-            "tests/keyfile/id_key_test.pem",
-            "tests/keyfile/author_key_test.pem"
+            bytes(16),
+            bytes(16),
+            0,
+            id_block.FileSigner("tests/keyfile/id_key_test.pem"),
+            id_block.FileSigner("tests/keyfile/author_key_test.pem")
         )
-        self.assertIn(
-            'id-block=B28FLQi9p6cAqipgjFyqawDrrSl7bWioWkWx5mmlWLZ+G5HShKMB/mPE+gdQRn7t'
-            'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAwAAAAAA',
-            block
+        self.assertEqual(
+            base64.b64decode('B28FLQi9p6cAqipgjFyqawDrrSl7bWioWkWx5mmlWLZ+G5HShKMB/mPE+gdQRn7t'
+            'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAgAAAAAA'),
+            block["id_block"]
         )
-        self.assertIn(
-            "id_key_hash: hwt+NcU/inLQ0yL3WrKvgmJ5Kq9leWIs5BMcPyHyied8sFYKXjuQs5MuZ07HCcsU",
-            block
+        self.assertEqual(
+            base64.b64decode("hwt+NcU/inLQ0yL3WrKvgmJ5Kq9leWIs5BMcPyHyied8sFYKXjuQs5MuZ07HCcsU"),
+            block["id_key_digest"]
         )
-        self.assertIn(
-            "author_key: YxEcNLv8Ckk4+aAJvQdJgNgXIyPmFZnJ/TNtqGcySOHcqY0L6PdjdqEGuK/UwKBX",
-            block
+        self.assertEqual(
+            base64.b64decode("YxEcNLv8Ckk4+aAJvQdJgNgXIyPmFZnJ/TNtqGcySOHcqY0L6PdjdqEGuK/UwKBX"),
+            block["author_key_digest"]
         )

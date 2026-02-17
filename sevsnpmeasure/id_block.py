@@ -97,10 +97,10 @@ class CheckedCtypesStruct(ctypes.Structure):
 class IdBlock(CheckedCtypesStruct):
     _fields_ = [
         ("ld", LaunchDigest),
-        ("family_id", ctypes.c_char * 16),
-        ("image_id", ctypes.c_char * 16),
+        ("family_id", c_uint8 * 16),
+        ("image_id", c_uint8 * 16),
         ("version", ctypes.c_uint32),
-        ("guest_svn", ctypes.c_char * 4),
+        ("guest_svn", c_uint8 * 4),
         ("policy", ctypes.c_uint64)
     ]
 
@@ -109,13 +109,13 @@ class IdAuth(CheckedCtypesStruct):
     _fields_ = [
         ("id_key_algo", ctypes.c_uint32),
         ("auth_key_algo", ctypes.c_uint32),
-        ("reserved1", ctypes.c_char * 56),
+        ("reserved1", c_uint8 * 56),
         ("id_block_sig", ECSignature),
         ("id_key", ECPubKey),
-        ("reserved2", ctypes.c_char * 60),
+        ("reserved2", c_uint8 * 60),
         ("id_key_sig", ECSignature),
         ("author_key", ECPubKey),
-        ("reserved3", ctypes.c_char * 892),
+        ("reserved3", c_uint8 * 892),
     ]
 
 
@@ -124,7 +124,7 @@ class ECPublicKey(CheckedCtypesStruct):
         ("curve", ctypes.c_uint32),
         ("qx", Qx),
         ("qy", Qy),
-        ("reserved", ctypes.c_char * 0x370)
+        ("reserved", c_uint8 * 0x370)
     ]
 
 
@@ -132,17 +132,19 @@ class SnpSignature(CheckedCtypesStruct):
     _fields_ = [
         ("r", SigR),
         ("s", SigS),
-        ("reserved", ctypes.c_char * 368)
+        ("reserved", c_uint8 * 368)
     ]
 
+def to_c_array(buf: bytes):
+    return (c_uint8 * len(buf))(*buf)
+
 def snp_calc_id_block(ld: bytes, family_id: bytes, image_id: bytes, guest_svn: int, id_privkey: EcSigner, author_privkey: EcSigner | None):
-    digest = LaunchDigest.from_buffer_copy(ld)
     id_block = IdBlock(
-        ld=digest,
-        family_id=family_id,
-        image_id=image_id,
+        ld=LaunchDigest.from_buffer_copy(ld),
+        family_id=to_c_array(family_id),
+        image_id=to_c_array(image_id),
         version=DefaultVersion,
-        guest_svn=guest_svn.to_bytes(4, byteorder='little', signed=False),
+        guest_svn=to_c_array(guest_svn.to_bytes(4, byteorder='little', signed=False)),
         policy=DefaultPolicy
     )
     id_key = ECPubKey.from_buffer_copy(marshal_ec_public_key(id_privkey))

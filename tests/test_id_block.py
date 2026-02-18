@@ -19,15 +19,15 @@ class TestIdBlock(unittest.TestCase):
         ld = base64.b64decode("B28FLQi9p6cAqipgjFyqawDrrSl7bWioWkWx5mmlWLZ+G5HShKMB/mPE+gdQRn7t")
         block = id_block.snp_calc_id_block(
             ld,
-            bytes(16),
-            bytes(16),
-            0,
+            b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01',
+            b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02',
+            3,
             id_block.FileSigner("tests/keyfile/id_key_test.pem"),
             id_block.FileSigner("tests/keyfile/author_key_test.pem")
         )
         self.assertEqual(
             base64.b64decode('B28FLQi9p6cAqipgjFyqawDrrSl7bWioWkWx5mmlWLZ+G5HShKMB/mPE+gdQRn7t'
-            'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAgAAAAAA'),
+            'AAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAIBAAAAAwAAAAAAAgAAAAAA'),
             block["id_block"]
         )
         self.assertEqual(

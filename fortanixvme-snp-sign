@@ -17,6 +17,9 @@ from sevsnpmeasure import vcpu_types
 from sevsnpmeasure.id_block import FileSigner, SdkmsSigner, snp_calc_id_block
 from sevsnpmeasure.sev_mode import SevMode
 
+# Fortanix VME standard - Generic virtualized processor for SNP
+GENERIC_CPU_FMS = 0
+
 def auth_sdkms(api_key: str, api_endpoint: str) -> sdkms.ApiClient:
     api_key = base64.b64decode(api_key).decode('ascii')
     parts = api_key.split(':')
@@ -70,8 +73,7 @@ try:
     ld = calc_launch_digest(
         mode = SevMode.SEV_SNP,
         vcpus = 1,
-        # TODO(RTE-789): finalize base CPU model selection
-        vcpu_sig = vcpu_types.CPU_SIGS['EPYC-v4'],
+        vcpu_sig = GENERIC_CPU_FMS,
         initrd = None,
         append = None,
         guest_features = 1,

@@ -52,8 +52,8 @@ def hex16bytes(s: str) -> bytes:
 
 parser = argparse.ArgumentParser(prog='fortanixvme-snp-sign', description='Sign VME-SNP binaries')
 parser.add_argument('--ovmf', metavar='PATH', required=True, help='OVMF file to calculate hash from')
-parser.add_argument('--uki', metavar='PATH', required=True, help='Kernel file to calculate hash from')
-parser.add_argument('--out-prefix', metavar='PATH', required=True, help='File path prefix from which the output filename fill be generated')
+parser.add_argument('--uki', metavar='PATH', required=True, help='UKI image file to calculate hash from')
+parser.add_argument('--out-prefix', metavar='PATH', required=True, help='file path prefix from which the output filename fill be generated')
 idkey = parser.add_mutually_exclusive_group(required=True)
 idkey.add_argument('--id-key-file', metavar='PATH', help='id private key file')
 idkey.add_argument('--id-key-dsm-id', metavar='UUID', help='id private key DSM UUID')
@@ -66,7 +66,7 @@ parser.add_argument('--guest-svn', metavar='SVN', required=True, type=lambda x: 
 parser.add_argument('--family-id', metavar='HEX', required=True, type=hex16bytes, help="Family ID (in hex)"),
 parser.add_argument('--image-id', metavar='HEX', required=True, type=hex16bytes, help="Image ID (in hex)"),
 parser.add_argument("--api-endpoint", metavar="URL", default=os.getenv("FORTANIX_API_ENDPOINT"), help="DSM API endpoint to connect to")
-parser.add_argument("--api-key", default=os.getenv("FORTANIX_API_KEY"), help="Env variable name of API Key")
+parser.add_argument("--api-key", default=os.getenv("FORTANIX_API_KEY"), help="value of API Key")
 args = parser.parse_args()
 
 try:

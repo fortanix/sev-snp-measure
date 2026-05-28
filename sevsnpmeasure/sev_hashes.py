@@ -6,8 +6,9 @@
 import ctypes
 from ctypes import c_uint8, c_uint16
 import hashlib
+import io
 import uuid
-
+from typing import BinaryIO
 
 Sha256Hash = c_uint8 * hashlib.sha256().digest_size
 
@@ -58,20 +59,13 @@ class SevHashes:
     SEV_CMDLINE_ENTRY_GUID = "97d02dd8-bd20-4c94-aa78-e7714d36ab2a"
 
     def __init__(self, kernel: str, initrd: str, append: str):
-        with open(kernel, 'rb') as fh:
-            self.kernel_hash = hashlib.sha256(fh.read()).digest()
-
-        if initrd:
-            with open(initrd, 'rb') as fh:
-                initrd_data = fh.read()
-        else:
-            initrd_data = b''
-        self.initrd_hash = hashlib.sha256(initrd_data).digest()
+        self.kernel_hash = SevHashes.calc_kernel_hash_digest(kernel)
+        self.initrd_hash = SevHashes.calc_initrd_hash_digest(initrd)
 
         if append:
-            cmdline = append.encode() + b'\x00'
+            cmdline = append.encode() + b"\x00"
         else:
-            cmdline = b'\x00'
+            cmdline = b"\x00"
         self.cmdline_hash = hashlib.sha256(cmdline).digest()
 
     #
@@ -108,3 +102,29 @@ class SevHashes:
         page = bytes(offset) + hashes_table + bytes(4096 - offset - len(hashes_table))
         assert len(page) == 4096
         return page
+
+    @staticmethod
+    def calc_kernel_hash_digest(kernel: str):
+        with open(kernel, "rb") as fh:
+            return SevHashes.calc_hash_digest(fh)
+
+    @staticmethod
+    def calc_initrd_hash_digest(initrd: str):
+        if initrd:
+            with open(initrd, "rb") as fh:
+                return SevHashes.calc_hash_digest(fh)
+        else:
+            return SevHashes.calc_hash_digest(io.BytesIO(b""))
+
+    @staticmethod
+    def calc_hash_digest(io: BinaryIO, buffer_size=1024):
+        hasher = hashlib.sha256()
+        read_any = False
+        for data in iter(lambda: io.read(buffer_size), b""):
+            if not data:
+                break
+            hasher.update(data)
+            read_any = True
+        if not read_any:
+            hasher.update(b"")
+        return hasher.digest()
